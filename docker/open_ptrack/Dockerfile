@@ -35,7 +35,6 @@ RUN /bin/bash -c "source /opt/ros/melodic/setup.bash \
     && cd ~/workspace/ros/src/open_ptrack \
     && git checkout $branch \
     && cd rtpose_wrapper     \  
-    && sed -i -e 's/CUDNN_CROSS_CORRELATION/CUDNN_CROSS_CORRELATION, CUDNN_DATA_FLOAT/g' include/caffe/util/cudnn.hpp   \
     && apt-get --assume-yes install libprotobuf-dev libleveldb-dev libsnappy-dev libhdf5-serial-dev protobuf-compiler libboost-all-dev libgflags-dev libgoogle-glog-dev liblmdb-dev    \
     && make all -j8"
 
