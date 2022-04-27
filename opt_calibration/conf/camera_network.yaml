@@ -1,35 +1,34 @@
 
 enable_people_tracking: true
 enable_pose: true
-enable_object: true
+enable_object: false
 # Camera network parameters
 network:
-  - pc: "PC1"
+  - pc: "opt-01"
     sensors:
-      - type: kinect2
-        id: "kinect01"
+      - type: realsense
+        id: "realsense01"
         people_detector: hog
-  - pc: "PC2"
+  - pc: "opt-02"
     sensors:
-      - type: kinect2
-        id: "kinect02"
+      - type: realsense
+        id: "realsense02"
         people_detector: hog
-  - pc: "PC3"
-    sensors:
-      - type: kinect2
-        id: "kinect03"
-        people_detector: hog
-
-#  - pc: "opt2-chela-master"
+#  - pc: "opt-03"
 #    sensors:
-#      - type: kinect2
-#        id: "kinect06"
+#      - type: realsense
+#        id: "realsense03"
+#        people_detector: hog
+#  - pc: "opt-04"
+#    sensors:
+#      - type: realsense
+#        id: "realsense04"
 #        people_detector: hog
 
 # Checkerboard parameters
 checkerboard:
   rows: 6
   cols: 5
-  cell_width: 0.07
-  cell_height: 0.07
+  cell_width: 0.11
+  cell_height: 0.11
 

@@ -443,6 +443,7 @@ class Listener :
       file.write('  <arg name="sensor_name" default="' + request.id + '" />\n\n')
       file.write('  <arg name="width" default="640" />\n')
       file.write('  <arg name="height" default="480" />\n\n')
+      file.write('  <arg name="fps" default="30" />\n\n')
       file.write('  <!-- true  = Munaro Based OPT Detection -->\n')
       file.write('  <!-- false = YOLO Based Detection (Must Have YOLO installed to use)-->\n')
       if request.people_detector_type == OPTSensorRequest.PEOPLE_DETECTOR_YOLO_BASED:
@@ -456,10 +457,12 @@ class Listener :
         file.write('      <arg name="serial_no"         value="$(arg sensor_id)" />\n\n')
       file.write('      <arg name="depth_width"         value="$(arg width)" />\n')
       file.write('      <arg name="depth_height"         value="$(arg height)" />\n')
+      file.write('      <arg name="depth_fps"         value="$(arg fps)" />\n')
       file.write('      <arg name="infra_width"         value="$(arg width)" />\n')
       file.write('      <arg name="infra_height"         value="$(arg height)" />\n')
       file.write('      <arg name="color_width"         value="$(arg width)" />\n')
       file.write('      <arg name="color_height"         value="$(arg height)" />\n')
+      file.write('      <arg name="color_fps"         value="$(arg fps)" />\n')
       file.write('   </include>\n')
       file.write('  <include file="$(find detection)/launch/realsense_frames.launch">\n')
       file.write('      <arg name="camera"         value="$(arg sensor_name)" />\n')
@@ -490,8 +493,10 @@ class Listener :
       file.write('  <!-- Skeleton Detection node -->\n')
       file.write('  <group if="$(arg enable_pose)">\n')
       file.write('    <include file="$(find detection)/launch/skeleton_detector_realsense.launch">\n')
-      file.write('      <arg name="sensor_name"             value="$(arg sensor_name)" />\n')
-      file.write('      <arg name="ground_from_calibration" value="true" />\n')
+      file.write('      <arg name="sensor_name"               value="$(arg sensor_name)" />\n')
+      file.write('      <arg name="ground_from_calibration"   value="true" />\n')
+      file.write('      <arg name="rtpose_skeletons_enabled"  value="true" />\n')
+      
       file.write('    </include>\n\n')
       file.write('  </group>\n\n')
 
