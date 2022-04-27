@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="opw_node_required"                    default="false"    />
+  <arg name="node_name"                            default="node"     />
+  <!--************************************-->
+  <!-- OpenPose Wrapper Parameters        -->
+  <!--************************************-->
+  <arg name="input_image_topic"               default=""                    />
+  <arg name="publish_rendered_image_topic"    default="false"               />
+  <arg name="publish_compressed"              default="false"               />
+  <arg name="output_image_topic_name"         default="openpose_detection"  />
+  <arg name="publish_skeleton_group_topic"    default="true"                />
+  <arg name="out_msg_topic_name"              default="skeleton_group"      />
+  <arg name="use_region_of_interest"          default="false"               />
+  <arg name="roi_top_left_corner_x"           default="0"                   />
+  <arg name="roi_top_left_corner_y"           default="0"                   />
+  <arg name="roi_width"                       default="0"                   />
+  <arg name="roi_height"                      default="0"                   />
+  <arg name="min_skeleton_confidence"         default="0.0"                 />
+  <arg name="min_marker_confidence"           default="0.0"                 />
+  <arg name="enable_marker_filtering"         default="false"               />
+  <arg name="lag_minimization_enable"         default="false"               />
+  <arg name="max_input_delay"                 default="0.0"                 />
+  <!--*****************************-->
+  <!-- OpenPose General Parameters -->
+  <!--*****************************-->
+  <arg name="number_of_gpus"                  default="-1"       />
+  <arg name="gpu_number_start"                default="0"        />
+  <arg name="max_fps"                         default="-1"       />
+  <arg name="upsampling_ratio"                default="0.0"      />
+  <arg name="models_path"                     default="models"   />
+  <arg name="output_size"                     default="-1x-1"    />
+  <arg name="keypoints_scale_mode"            default="0"        />
+  <arg name="max_number_of_people"            default="-1"       />
+  <arg name="render_mode"                     default="-1"       />
+  <arg name="alpha_keypoint"                  default="0.6"      />
+  <arg name="alpha_heat_map"                  default="0.7"      />
+  <arg name="blend_original_frame"            default="true"     />
+  <arg name="add_part_candidates"             default="false"    />
+  <arg name="maximize_positives"              default="false"    />
+  <arg name="enable_google_logging"           default="true"     />
+  <!--***********************************-->
+  <!-- OpenPose Body Detector Parameters -->
+  <!--***********************************-->
+  <arg name="body_enable_detection"           default="true"     />
+  <arg name="body_model_name"                 default="BODY_25"  />
+  <arg name="body_net_input_size"             default="-1x368"   />
+  <arg name="body_scales_number"              default="1"        />
+  <arg name="body_scale_gap"                  default="0.25"     />
+  <arg name="body_default_parts_to_render"    default="0"        />
+  <arg name="body_heat_maps_add_pafs"         default="false"    />
+  <arg name="body_heat_maps_add_parts"        default="false"    />
+  <arg name="body_heat_maps_add_background"   default="false"    />
+  <arg name="body_heat_maps_scale_mode"       default="4"        />
+  <arg name="body_render_threshold"           default="0.05"     />
+  <!--************************************-->
+  <!-- OpenPose Hands Detector Parameters -->
+  <!--************************************-->
+  <arg name="hands_enable_detection"          default="false"    />
+  <arg name="hands_model_name"                default="HAND"     />
+  <arg name="hands_locations_detector"        default="0"        />
+  <arg name="hands_scales_number"             default="1"        />
+  <arg name="hands_scale_range"               default="0.4"      />
+  <arg name="hands_render_threshold"          default="0.2"      />
+  <arg name="hands_net_input_size"            default="368x368"  />
+  <!--***********************************-->
+  <!-- OpenPose Face Detector Parameters -->
+  <!--***********************************-->
+  <arg name="face_enable_detection"           default="false"    />
+  <arg name="face_model_name"                 default="FACE"     />
+  <arg name="face_location_detector"          default="0"        />
+  <arg name="face_render_threshold"           default="0.4"      />
+  <arg name="face_net_input_size"             default="368x368"  />
+
+
+  <!--******************************-->
+  <!-- OpenPose Wrapper Node        -->
+  <!--******************************-->
+  <node pkg="openpose_wrapper" type="openpose_wrapper_node" ns="opw" name="$(arg node_name)" output="screen" required="$(arg opw_node_required)">
+    <rosparam command="load" file="$(find openpose_wrapper)/config/opw_configuration.yaml"/>
+
+    <param name="node_name"                       type="str"        value="$(arg node_name)"                     />
+    <param name="input_image_topic"               type="str"        value="$(arg input_image_topic)"             />
+    <param name="publish_rendered_image_topic"    type="bool"       value="$(arg publish_rendered_image_topic)"  />
+    <param name="publish_compressed"              type="bool"       value="$(arg publish_compressed)"            />
+    <param name="output_image_topic_name"         type="str"        value="$(arg output_image_topic_name)"       />
+    <param name="publish_skeleton_group_topic"    type="bool"       value="$(arg publish_skeleton_group_topic)"  />
+    <param name="out_msg_topic_name"              type="str"        value="$(arg out_msg_topic_name)"            />
+
+    <param name="use_region_of_interest"          type="bool"       value="$(arg use_region_of_interest)"        />
+    <param name="roi_top_left_corner_x"           type="int"        value="$(arg roi_top_left_corner_x)"         />
+    <param name="roi_top_left_corner_y"           type="int"        value="$(arg roi_top_left_corner_y)"         />
+    <param name="roi_width"                       type="int"        value="$(arg roi_width)"                     />
+    <param name="roi_height"                      type="int"        value="$(arg roi_height)"                    />
+
+    <param name="min_skeleton_confidence"         type="double"     value="$(arg min_skeleton_confidence)"       />
+    <param name="min_marker_confidence"           type="double"     value="$(arg min_marker_confidence)"         />
+    <param name="enable_marker_filtering"         type="bool"       value="$(arg enable_marker_filtering)"       />
+
+    <param name="lag_minimization_enable"         type="bool"       value="$(arg lag_minimization_enable)"       />
+    <param name="max_input_delay"                 type="double"     value="$(arg max_input_delay)"               />
+
+    <!--*****************************-->
+    <!-- OpenPose General Parameters -->
+    <!--*****************************-->
+    <param name="number_of_gpus"                  type="int"        value="$(arg number_of_gpus)"                />
+    <param name="gpu_number_start"                type="int"        value="$(arg gpu_number_start)"              />
+    <param name="max_fps"                         type="double"     value="$(arg max_fps)"                       />
+    <param name="upsampling_ratio"                type="double"     value="$(arg upsampling_ratio)"              />
+    <param name="models_path"                     type="str"        value="$(arg models_path)"                   />
+    <param name="output_size"                     type="str"        value="$(arg output_size)"                   />
+    <param name="keypoints_scale_mode"            type="int"        value="$(arg keypoints_scale_mode)"          />
+    <param name="max_number_of_people"            type="int"        value="$(arg max_number_of_people)"          />
+    <param name="render_mode"                     type="int"        value="$(arg render_mode)"                   />
+    <param name="alpha_keypoint"                  type="double"     value="$(arg alpha_keypoint)"                />
+    <param name="alpha_heat_map"                  type="double"     value="$(arg alpha_heat_map)"                />
+    <param name="blend_original_frame"            type="bool"       value="$(arg blend_original_frame)"          />
+    <param name="add_part_candidates"             type="bool"       value="$(arg add_part_candidates)"           />
+    <param name="maximize_positives"              type="bool"       value="$(arg maximize_positives)"            />
+    <param name="enable_google_logging"           type="bool"       value="$(arg enable_google_logging)"         />
+    <param name="body_enable_detection"           type="bool"       value="$(arg body_enable_detection)"         />
+    <param name="body_model_name"                 type="str"        value="$(arg body_model_name)"               />
+    <param name="body_net_input_size"             type="str"        value="$(arg body_net_input_size)"           />
+    <param name="body_scales_number"              type="int"        value="$(arg body_scales_number)"            />
+    <param name="body_scale_gap"                  type="double"     value="$(arg body_scale_gap)"                />
+    <param name="body_default_parts_to_render"    type="int"        value="$(arg body_default_parts_to_render)"  />
+    <param name="body_heat_maps_add_pafs"         type="bool"       value="$(arg body_heat_maps_add_pafs)"       />
+    <param name="body_heat_maps_add_parts"        type="bool"       value="$(arg body_heat_maps_add_parts)"      />
+    <param name="body_heat_maps_add_background"   type="bool"       value="$(arg body_heat_maps_add_background)" />
+    <param name="body_heat_maps_scale_mode"       type="int"        value="$(arg body_heat_maps_scale_mode)"     />
+    <param name="body_render_threshold"           type="double"     value="$(arg body_render_threshold)"         />
+    <param name="hands_enable_detection"          type="bool"       value="$(arg hands_enable_detection)"        />
+    <param name="hands_model_name"                type="str"        value="$(arg hands_model_name)"              />
+    <param name="hands_locations_detector"        type="int"        value="$(arg hands_locations_detector)"      />
+    <param name="hands_scales_number"             type="int"        value="$(arg hands_scales_number)"           />
+    <param name="hands_scale_range"               type="double"     value="$(arg hands_scale_range)"             />
+    <param name="hands_render_threshold"          type="double"     value="$(arg hands_render_threshold)"        />
+    <param name="hands_net_input_size"            type="str"        value="$(arg hands_net_input_size)"          />
+    <param name="face_enable_detection"           type="bool"       value="$(arg face_enable_detection)"         />
+    <param name="face_model_name"                 type="str"        value="$(arg face_model_name)"               />
+    <param name="face_location_detector"          type="int"        value="$(arg face_location_detector)"        />
+    <param name="face_render_threshold"           type="double"     value="$(arg face_render_threshold)"         />
+    <param name="face_net_input_size"             type="str"        value="$(arg face_net_input_size)"           />
+  </node>
+
+<!--*********************************************************-->
+<!-- Hack to avoid tons of useless topics by image_transport -->
+<!--*********************************************************-->
+  <group ns="opw/$(arg node_name)/$(arg output_image_topic_name)" >
+    <group if="$(arg publish_compressed)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+        - 'image_transport/theora'
+      </rosparam>
+    </group>
+    <group unless="$(arg publish_compressed)">
+      <rosparam param="disable_pub_plugins">
+        - 'image_transport/compressedDepth'
+        - 'image_transport/theora'
+        - 'image_transport/compressed'
+      </rosparam>
+    </group>
+  </group>
+
+</launch>

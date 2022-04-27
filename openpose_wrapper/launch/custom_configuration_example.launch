@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="node_name"      default="node_01" />
+  <arg name="use_kinect"     default="false" />
+
+  <!--****************************************************-->
+  <!-- Kinect 2 Bridge Node : Parameters override and Run -->
+  <!--****************************************************-->
+  <group if="$(arg use_kinect)">
+    <include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch" ns="k2b" >
+      <arg name="base_name"                     value="$(arg node_name)"     />
+      <arg name="publish_tf"                    value="true"                 />
+    </include>
+
+  </group>
+
+  <!--****************************************************-->
+  <!-- Realsense Node : Parameters override and Run -->
+  <!--****************************************************-->
+  <group unless="$(arg use_kinect)" >
+    <include file="$(find realsense2_camera)/launch/rs_rgbd.launch" ns="k2b"  >
+      <arg name="camera"                     value="$(arg node_name)"     />
+      <arg name="color_width"                value="640"                  />
+      <arg name="color_height"               value="480"                  />
+      <arg name="color_fps"                  value="30"                   />
+      <arg name="depth_width"                value="640"                  />
+      <arg name="depth_height"               value="480"                  />
+      <arg name="depth_fps"                  value="30"                   />
+    </include>
+
+  </group>
+
+  <arg name="image_color_topic"     default="/k2b/$(arg node_name)/qhd/image_color_rect" if="$(arg use_kinect)" />
+  <arg name="image_color_topic"     default="/k2b/$(arg node_name)/color/image_rect_color" unless="$(arg use_kinect)" />
+
+  <!--**********************************************************-->
+  <!-- OpenPose Wrapper Node: Parameters override and Run-->
+  <!--**********************************************************-->
+  <include file="$(find openpose_wrapper)/launch/opw_default.launch">
+    <arg name="opw_node_required"             value="true"             />
+    <arg name="node_name"                     value="$(arg node_name)" />
+
+    <!-- These parameters MUST be overriden following system configuration -->
+    <arg name="models_path"                   value="/home/iaslab/third_party/openpose/models" />
+    <arg name="input_image_topic"             value="$(arg image_color_topic)"   />
+
+    <!-- These parameters CAN be overriden, feel free to place just what you need to modify -->
+    <arg name="publish_rendered_image_topic"  value="true"                  />
+    <arg name="publish_compressed"            value="false"                 />
+    <arg name="output_image_topic_name"       value="openpose_detection"    />
+    <arg name="publish_skeleton_group_topic"  value="true"                  />
+    <arg name="out_msg_topic_name"            value="skeleton_group"        />
+    <arg name="use_region_of_interest"        value="true"                  />
+    <arg name="roi_top_left_corner_x"         value="50"                   />
+    <arg name="roi_top_left_corner_y"         value="50"                    />
+    <arg name="roi_width"                     value="540"                   />
+    <arg name="roi_height"                    value="380"                   />
+    <arg name="min_skeleton_confidence"       value="0.2"                   />
+    <arg name="min_marker_confidence"         value="0.4"                   />
+    <arg name="enable_marker_filtering"       value="false"                 />
+    <arg name="lag_minimization_enable"       value="true"                  />
+    <arg name="max_input_delay"               value="0.1"                   />
+
+    <!-- OpenPose specific parameters, add here below what you need to override -->
+    <arg name="body_render_threshold"         value="0.4"                   />
+    <arg name="body_enable_detection"         value="true"                  />
+    <arg name="hands_enable_detection"        value="false"                 />
+    <arg name="face_enable_detection"         value="false"                 />
+  </include>
+
+</launch>
