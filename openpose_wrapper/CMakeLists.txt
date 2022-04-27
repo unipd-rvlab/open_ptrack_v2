@@ -11,9 +11,11 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   cv_bridge
   image_transport
+  tf
   tf2
   sensor_msgs
   geometry_msgs
+  visualization_msgs
   message_generation
 )
 
@@ -141,11 +143,23 @@ add_dependencies(${PROJECT_NAME}_skeleton_types ${PROJECT_NAME}_generate_message
 
 
 add_executable(${PROJECT_NAME}_node
+               apps/opw_node.cpp
                src/consumer.cpp
-               src/main.cpp
                src/producer.cpp
                src/wrapper.cpp)
+
 target_link_libraries(${PROJECT_NAME}_node
+                      ${catkin_LIBRARIES}
+                      ${OpenPose_LIBS}
+                      ${OpenCV_LIBS}
+                      ${PROJECT_NAME}_skeleton_types)
+
+add_executable(openpose_3d_projector_node
+               apps/opw_3d_projector_node.cpp
+               src/projector.cpp
+               src/queue.cpp)
+
+target_link_libraries(openpose_3d_projector_node
                       ${catkin_LIBRARIES}
                       ${OpenPose_LIBS}
                       ${OpenCV_LIBS}

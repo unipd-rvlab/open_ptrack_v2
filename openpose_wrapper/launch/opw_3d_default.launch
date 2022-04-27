@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="opw_3d_node_required"                   default="false"    />
+  <arg name="node_name"                              default="node"     />
+
+  <!--************************************-->
+  <!-- OPW 3D Projector Parameters -->
+  <!--************************************-->
+  <arg name="in_skeleton_group_topic"                 default=""                />
+  <arg name="in_depth_topic"                          default=""                />
+  <arg name="in_camera_info_topic"                    default=""                />
+  <arg name="out_msg_topic_name"                      default="skeleton_group" />
+  <arg name="publish_in_global_reference_frame"       default="false"           />
+  <arg name="global_reference_frame"                  default=""                />
+  <arg name="enable_bounding_box"                     default="false"           />
+  <arg name="depth_to_meters_multiplier"              default="1"               />
+  <arg name="epsilon_time_matching"                   default="0.001"           />
+  <arg name="bb_equivalent_side_scaling_factor"       default="0.06"            />
+  <arg name="valid_to_total_mks_scaling_factor"       default="3.0"             />
+
+  <!--******************************-->
+  <!-- 3D Projector Node -->
+  <!--******************************-->
+  <node pkg="openpose_wrapper" type="openpose_3d_projector_node" ns="opw_3d" name="$(arg node_name)" output="screen" required="$(arg opw_3d_node_required)">
+    <param name="node_name"                           type="str"        value="$(arg node_name)"                          />
+    <param name="in_skeleton_group_topic"             type="str"        value="$(arg in_skeleton_group_topic)"            />
+    <param name="in_depth_topic"                      type="str"        value="$(arg in_depth_topic)"                     />
+    <param name="in_camera_info_topic"                type="str"        value="$(arg in_camera_info_topic)"               />
+    <param name="out_msg_topic_name"                  type="str"        value="$(arg out_msg_topic_name)"                 />
+    <param name="publish_in_global_reference_frame"   type="bool"       value="$(arg publish_in_global_reference_frame)"  />
+    <param name="global_reference_frame"              type="str"        value="$(arg global_reference_frame)"             />
+    <param name="enable_bounding_box"                 type="bool"       value="$(arg enable_bounding_box)"                />
+    <param name="depth_to_meters_multiplier"          type="double"     value="$(arg depth_to_meters_multiplier)"         />
+    <param name="epsilon_time_matching"               type="double"     value="$(arg epsilon_time_matching)"              />
+    <param name="bb_equivalent_side_scaling_factor"   type="double"     value="$(arg bb_equivalent_side_scaling_factor)"  />
+    <param name="valid_to_total_mks_scaling_factor"   type="double"     value="$(arg valid_to_total_mks_scaling_factor)"  />
+  </node>
+
+</launch>

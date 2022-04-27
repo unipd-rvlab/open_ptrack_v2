@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
 <launch>
 
-  <arg name="node_name"      default="node_01" />
-  <arg name="use_kinect"     default="false" />
+  <arg name="node_name"           default="node_01" />
+  <arg name="use_kinect"          default="false"   />
+  <arg name="use_3d_projection"   default="true"   />
 
   <!--****************************************************-->
   <!-- Kinect 2 Bridge Node : Parameters override and Run -->
@@ -31,8 +32,13 @@
 
   </group>
 
-  <arg name="image_color_topic"     default="/k2b/$(arg node_name)/qhd/image_color_rect" if="$(arg use_kinect)" />
-  <arg name="image_color_topic"     default="/k2b/$(arg node_name)/color/image_rect_color" unless="$(arg use_kinect)" />
+  <arg name="image_color_topic"     default="/k2b/$(arg node_name)/qhd/image_color_rect"       if="$(arg use_kinect)" />
+  <arg name="image_depth_topic"     default="/k2b/$(arg node_name)/qhd/image_depth_rect"       if="$(arg use_kinect)" />
+  <arg name="camera_info_topic"     default="/k2b/$(arg node_name)/qhd/camera_info"            if="$(arg use_kinect)" />
+  
+  <arg name="image_color_topic"     default="/k2b/$(arg node_name)/color/image_rect_color"            unless="$(arg use_kinect)" />
+  <arg name="image_depth_topic"     default="/k2b/$(arg node_name)/aligned_depth_to_color/image_raw"  unless="$(arg use_kinect)" />
+  <arg name="camera_info_topic"     default="/k2b/$(arg node_name)/color/camera_info"                 unless="$(arg use_kinect)" />
 
   <!--**********************************************************-->
   <!-- OpenPose Wrapper Node: Parameters override and Run-->
@@ -67,6 +73,24 @@
     <arg name="body_enable_detection"         value="true"                  />
     <arg name="hands_enable_detection"        value="false"                 />
     <arg name="face_enable_detection"         value="false"                 />
+  </include>
+
+
+  <!--**********************************************************-->
+  <!-- OPW 3D Projector Node: Parameters override and Run-->
+  <!--**********************************************************-->
+  <include file="$(find openpose_wrapper)/launch/opw_3d_default.launch" if="$(arg use_3d_projection)" >
+    <arg name="opw_3d_node_required"                    value="true"                                                            />
+    <arg name="node_name"                               value="$(arg node_name)"                                                />
+    <arg name="in_skeleton_group_topic"                 value="/opw/$(arg node_name)/skeleton_group"                            />
+    <arg name="in_depth_topic"                          value="$(arg image_depth_topic)"                                        />
+    <arg name="in_camera_info_topic"                    value="$(arg camera_info_topic)"                                        />
+    <arg name="publish_in_global_reference_frame"       value="false"                                                           />
+    <arg name="global_reference_frame"                  value="world"                                                           />
+    <arg name="enable_bounding_box"                     value="false"                                                           />
+
+    <!-- Required for iai_kinect2 that publishes depth in mm -->
+    <arg name="depth_to_meters_multiplier"              value="0.001"   />
   </include>
 
 </launch>
