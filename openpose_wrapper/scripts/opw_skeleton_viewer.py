@@ -17,14 +17,23 @@ class SkeletonViewer():
         
         rospy.loginfo("Initializing Skeleton Viewer Node...")
         
+        self.sensor_name        = rospy.get_param('~sensor_name', 'node_01')
+        self.in_skeleton_group  = rospy.get_param('~in_skeleton', 'opw_3d/' + self.sensor_name + '/skeleton_group')
+        #self.frame_id          = rospy.get_param('~frame_id'   , self.sensor_name + '_color_optical_frame')
+        
         self.scale    = rospy.get_param('~scale', 0.07)
         self.lifetime = rospy.get_param('~lifetime', 0) # 0 is forever
-        self.ns       = rospy.get_param('~ns', 'skeleton_markers')
+        self.ns       = rospy.get_param('~ns', self.sensor_name)
         self.id       = rospy.get_param('~id', 0)
         self.color    = rospy.get_param('~color', {'r': 0.0, 'g': 1.0, 'b': 0.0, 'a': 1.0})
         
+        # NB: you can remap private paramters directly from command-line:
+        # $ rosrun openpose_wrapper opw_skeleton_viewer.py _sensor_name:=realsense01 _color/r:=1.0
+        print('Sensor name:', self.sensor_name )
+        print('Input topic:', self.in_skeleton_group )
+        
         # Subscribe to the skeleton topic.
-        rospy.Subscriber('opw_3d/node_01/skeleton_group', SkeletonGroup, self.skeleton_handler)
+        rospy.Subscriber(self.in_skeleton_group, SkeletonGroup, self.skeleton_handler)
         
         # Define a marker publisher.
         self.marker_pub = rospy.Publisher('skeleton_markers', Marker, queue_size=10)
@@ -53,9 +62,9 @@ class SkeletonViewer():
             print("Shutting down")
         
     def skeleton_handler(self, msg):
-        #self.markers.header.frame_id = msg.header.frame_id
-        self.markers.header.frame_id = 'node_01_color_optical_frame'
-        self.markers.header.stamp = msg.header.stamp
+        self.markers.header.frame_id = msg.header.frame_id
+        self.markers.header.stamp    = msg.header.stamp
+
         self.markers.points = list()
         for skeleton in msg.skeletons: 
             for joint in skeleton.markers:         

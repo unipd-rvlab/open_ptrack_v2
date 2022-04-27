@@ -38,7 +38,7 @@
 
   <!-- Launch pose estimator node based on OpenPose -->
   <group unless="$(arg rtpose_skeletons_enabled)" >
-    <include file="$(find openpose_wrapper)/launch/opw_default.launch">
+    <include file="$(find openpose_wrapper)/launch/opw_default.launch" >
       <arg name="opw_node_required"             value="true"             />
       <arg name="node_name"                     value="$(arg sensor_name)" />
 
@@ -68,8 +68,20 @@
       <arg name="body_enable_detection"         value="true"                  />
       <arg name="hands_enable_detection"        value="false"                 />
       <arg name="face_enable_detection"         value="false"                 />
-
     </include>
+
+    <include file="$(find openpose_wrapper)/launch/opw_3d_default.launch" >
+      <arg name="opw_3d_node_required"                    value="true"                                                  />
+      <arg name="node_name"                               value="$(arg sensor_name)"                                    />
+      <arg name="in_skeleton_group_topic"                 value="/opw/$(arg sensor_name)/skeleton_group"                />
+      <arg name="in_depth_topic"                          value="/$(arg sensor_name)/aligned_depth_to_color/image_raw"  />
+      <arg name="in_camera_info_topic"                    value="/$(arg sensor_name)/color/camera_info"                 />
+      <arg name="publish_in_global_reference_frame"       value="false"                                                 />
+      <arg name="global_reference_frame"                  value="world"                                                 />
+      <arg name="enable_bounding_box"                     value="false"                                                 />
+      <arg name="depth_to_meters_multiplier"              value="0.001"                                                 />
+    </include>
+
   </group>
 
 </launch>
