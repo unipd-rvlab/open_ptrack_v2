@@ -463,6 +463,8 @@ void open_ptrack::opw::Wrapper::run(const sensor_msgs::ImageConstPtr& t_msg)
     skeleton_group->time = ros::Time::now().toSec();
     skeleton_group->frame = t_msg->header.frame_id;
 
+    //ROS_INFO_STREAM("[DBG]: OPW Skeletons found -> " <<  skeleton_group->skeletons.size());
+
     for (auto& skeleton : skeleton_group->skeletons) {
       skeleton.src_time = t_msg->header.stamp.toSec();
       skeleton.src_frame = t_msg->header.frame_id;

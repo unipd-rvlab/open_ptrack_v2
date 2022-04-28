@@ -149,6 +149,12 @@ std::unique_ptr<open_ptrack::skeletons::types::SkeletonGroup> open_ptrack::opw::
     // Since person IDs are randomly assigned by OpenPose, for consistency better not to write anything
     skeletons::types::Skeleton sk;
 
+    //--- MT ---
+    // But you need to add an ID, otherwise all skeletons have same default ID -1 and  
+    // the function "addSkeleton" at the end of this for loop "fails"
+    sk.id = person; 
+    //----------
+
     if (m_op_configuration.body_enabled) {
       sk.confidence = static_cast<double>(m_input_data->front()->poseScores.at(person));
 

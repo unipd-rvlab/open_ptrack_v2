@@ -211,6 +211,8 @@ open_ptrack::opw3d::Projector::project(openpose_wrapper::SkeletonGroupConstPtr t
   skeleton_group_3d.time = ros::Time::now().toSec();
   skeleton_group_3d.frame = m_private_params.output_reference_frame;
 
+  //ROS_INFO_STREAM("[DBG]: OPW_3D Skeletons found -> " << skeleton_group_3d.skeletons.size());
+
   for (auto& sk : skeleton_group_3d.skeletons) {
     cv::Rect depth_averaging_rect = computeDepthAveragingArea(sk);
 
