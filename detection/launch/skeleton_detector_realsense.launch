@@ -82,6 +82,14 @@
       <arg name="depth_to_meters_multiplier"              value="0.001"                                                 />
     </include>
 
+    <!-- Temporary fix: convert OpenPose skeletons to RTPose skeletons in order to reuse tracker node in OPT -->
+    <node pkg="openpose_wrapper" type="opw2rtpose.py" ns="opw_3d" name="$(arg sensor_name)_skeleton_converter" output="screen" >
+      <param name="sensor_name"           type="str"        value="$(arg sensor_name)"                          />
+      <param name="in_camera_info_topic"  type="str"        value="/$(arg sensor_name)/color/camera_info"       />
+      <param name="in_skeleton_topic"     type="str"        value="/opw_3d/$(arg sensor_name)/skeleton_group"   />
+      <param name="out_skeleton_topic"    type="str"        value="/detector/skeletons"                         />
+    </node>
+
   </group>
 
 </launch>
