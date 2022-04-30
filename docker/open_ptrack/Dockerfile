@@ -30,18 +30,51 @@ RUN /bin/bash -c "source /opt/ros/melodic/setup.bash \
 	&& git clone https://github.com/intel-ros/realsense.git ~/workspace/ros/src/realsense\
     && apt-get install ros-melodic-rgbd-launch"
 
-RUN /bin/bash -c "source /opt/ros/melodic/setup.bash \
+RUN /bin/bash -c "source /opt/ros/melodic/setup.bash" \
     && git clone https://github.com/unipd-rvlab/open_ptrack_v2 ~/workspace/ros/src/open_ptrack \
     && cd ~/workspace/ros/src/open_ptrack \
     && git checkout $branch \
     && cd rtpose_wrapper     \  
-    && ln -s /third_party/openpose/models ~/workspace/ros/src/open_ptrack/openpose_wrapper/models  \
     && apt-get --assume-yes install libprotobuf-dev libleveldb-dev libsnappy-dev libhdf5-serial-dev protobuf-compiler libboost-all-dev libgflags-dev libgoogle-glog-dev liblmdb-dev    \
-    && make all -j8"
+    && make all -j8
+
+# OpenPose dependencies
+RUN  cd     \ 
+    && mkdir third_party  \
+    && cd third_party  \
+    && git clone https://github.com/CMU-Perceptual-Computing-Lab/openpose  \
+    && cd openpose  \
+    && git checkout v1.7.0  \
+    && git submodule update --init --recursive --remote  \
+    && cd models  \
+    && ./getModels.sh  \
+    && cd ..  \
+    && mkdir build  \
+    && cd scripts/ubuntu  \
+    && chmod +x install_deps.sh  \
+    && ./install_deps.sh \
+    && cd ~/third_party/openpose/build  \
+    && cmake \                                                                      
+        -DDOWNLOAD_BODY_25_MODEL=ON \                                        
+        -DDOWNLOAD_BODY_COCO_MODEL=ON \                                        
+        -DDOWNLOAD_BODY_MPI_MODEL=ON \                                        
+        -DDOWNLOAD_FACE_MODEL=ON \                                        
+        -DDOWNLOAD_HAND_MODEL=ON \                                    
+        -DUSE_CUDNN=OFF  .. \
+    ## FIXME as v1.7.0 support AMPERE architectur, however we are using cuda 10 which is not compatible with AMPERE we comment these lines as a quick fix
+    ## https://github.com/CMU-Perceptual-Computing-Lab/openpose/issues/1753
+    && sed -ie 's/set(AMPERE "80 86")/#&/g'  ../cmake/Cuda.cmake \
+    && sed -ie 's/set(AMPERE "80 86")/#&/g'  ../3rdparty/caffe/cmake/Cuda.cmake \
+    && make -j $(nproc) \
+    && make install  \
+    && echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib' >> ~/.bashrc \
+    && ln -s ~/third_party/openpose/models ~/workspace/ros/src/open_ptrack/openpose_wrapper/  \
+    && echo "Added symlink to openpose models: $(ls -l ~/workspace/ros/src/open_ptrack/openpose_wrapper)" 
 
 RUN /bin/bash -c "source /opt/ros/melodic/setup.bash \
     && cd ~/workspace/ros \
-    && export LD_LIBRARY_PATH=/root/workspace/ros/devel/lib:/opt/ros/melodic/lib:/opt/ros/melodic/lib/x86_64-linux-gnu:/usr/local/lib/x86_64-linux-gnu:/usr/local/lib/i386-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/i386-linux-gnu:/usr/local/cuda/lib64 \
+    && export LD_LIBRARY_PATH=/root/workspace/ros/devel/lib:/opt/ros/melodic/lib:/opt/ros/melodic/lib/x86_64-linux-gnu:/usr/local/lib:/usr/local/lib/x86_64-linux-gnu:/usr/local/lib/i386-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/i386-linux-gnu:/usr/local/cuda/lib64 \
+    && echo "LD_LIBRARY_PATH: $(LD_LIBRARY_PATH)" 
     && catkin_make -j8 -DCMAKE_BUILD_TYPE=Release"
 
 RUN /bin/bash -c "source /root/workspace/ros/devel/setup.bash \

@@ -48,7 +48,7 @@
     <arg name="node_name"                     value="$(arg node_name)" />
 
     <!-- These parameters MUST be overriden following system configuration -->
-    <arg name="models_path"                   value="/home/iaslab/third_party/openpose/models" />
+    <arg name="models_path"                   value="$(find openpose_wrapper)/models" />
     <arg name="input_image_topic"             value="$(arg image_color_topic)"   />
 
     <!-- These parameters CAN be overriden, feel free to place just what you need to modify -->

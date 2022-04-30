@@ -104,39 +104,6 @@ RUN cd /tmp  \
     && make install  \
     && echo "Updated CMake: $(cmake --version)"
 
-
-# OpenPose dependencies
-RUN  cd     \ 
-    && mkdir third_party  \
-    && cd third_party  \
-    && git clone https://github.com/CMU-Perceptual-Computing-Lab/openpose  \
-    && cd openpose  \
-    && git checkout v1.7.0  \
-    && git submodule update --init --recursive --remote  \
-    && cd models  \
-    && ./getModels.sh  \
-    && cd ..  \
-    && mkdir build  \
-    && cd scripts/ubuntu  \
-    && chmod +x install_deps.sh  \
-    && ./install_deps.sh
-
-RUN cd ~/third_party/openpose/build  \
-    && cmake \                                                                      
-        -DDOWNLOAD_BODY_25_MODEL=ON \                                        
-        -DDOWNLOAD_BODY_COCO_MODEL=ON \                                        
-        -DDOWNLOAD_BODY_MPI_MODEL=ON \                                        
-        -DDOWNLOAD_FACE_MODEL=ON \                                        
-        -DDOWNLOAD_HAND_MODEL=ON \                                    
-        -DUSE_CUDNN=OFF  .. \
-    ## FIXME as v1.7.0 support AMPERE architectur, however we are using cuda 10 which is not compatible with AMPERE we comment these lines as a quick fix
-    ## https://github.com/CMU-Perceptual-Computing-Lab/openpose/issues/1753
-    && sed -ie 's/set(AMPERE "80 86")/#&/g'  ../cmake/Cuda.cmake \
-    && sed -ie 's/set(AMPERE "80 86")/#&/g'  ../3rdparty/caffe/cmake/Cuda.cmake \
-    && make -j $(nproc) \
-    && make install  \
-    && echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib' >> ~/.bashrc
-
 RUN  cd     \ 
     && cd workspace     \ 
     && git clone https://github.com/OpenPTrack/libfreenect2.git     \ 
