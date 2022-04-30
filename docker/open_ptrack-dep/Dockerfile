@@ -118,41 +118,22 @@ RUN  cd     \
     && cd ..  \
     && mkdir build  \
     && cd scripts/ubuntu  \
-    && apt-get install libopencv-dev  \
     && chmod +x install_deps.sh  \
-    && ./install_deps.sh  \
-    && cd ../../build  \
-    && apt-get install libgoogle-glog-dev  \
-    && cmake \
-        -DBUILD_CAFFE=ON \
-        -DBUILD_DOCS=OFF \                                     
-        -DBUILD_EXAMPLES=ON \                                       
-        -DBUILD_PYTHON=OFF \                                       
-        -DBUILD_SHARED_LIBS=ON \                                    
-        -DBUILD_UNITY_SUPPORT=OFF \
-        -DCMAKE_BUILD_TYPE=Release \                                
-        -DCMAKE_INSTALL_PREFIX=/usr/local \                                
-        -DCUDA_ARCH=Auto \                                      
-        -DCUDA_HOST_COMPILER=/usr/bin/cc \                               
-        -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda \                    
-        -DCUDA_USE_STATIC_CUDA_RUNTIME=ON  \ 
-        -DCUDA_rt_LIBRARY=/usr/lib/x86_64-linux-gnu/librt.so \
-        -DDL_FRAMEWORK=CAFFE \                                     
+    && ./install_deps.sh
+
+RUN cd ~/third_party/openpose/build  \
+    && cmake \                                                                      
         -DDOWNLOAD_BODY_25_MODEL=ON \                                        
         -DDOWNLOAD_BODY_COCO_MODEL=ON \                                        
         -DDOWNLOAD_BODY_MPI_MODEL=ON \                                        
         -DDOWNLOAD_FACE_MODEL=ON \                                        
-        -DDOWNLOAD_HAND_MODEL=ON \                                        
-        -DGPU_MODE=CUDA \                                      
-        -DINSTRUCTION_SET=NONE \
-        -DPROFILER_ENABLED=OFF \                                       
-        -DUSE_CUDNN=OFF \                                         
-        -DWITH_3D_RENDERER=OFF \                                       
-        -DWITH_CERES=OFF \                                        
-        -DWITH_EIGEN=NONE \                                       
-        -DWITH_FLIR_CAMERA=OFF \
-        -DWITH_OPENCV_WITH_OPENGL=OFF  .. \
-    && make -j8 \
+        -DDOWNLOAD_HAND_MODEL=ON \                                    
+        -DUSE_CUDNN=OFF  .. \
+    ## FIXME as v1.7.0 support AMPERE architectur, however we are using cuda 10 which is not compatible with AMPERE we comment these lines as a quick fix
+    ## https://github.com/CMU-Perceptual-Computing-Lab/openpose/issues/1753
+    && sed -ie 's/set(AMPERE "80 86")/#&/g'  ../cmake/Cuda.cmake \
+    && sed -ie 's/set(AMPERE "80 86")/#&/g'  ../3rdparty/caffe/cmake/Cuda.cmake \
+    && make -j $(nproc) \
     && make install  \
     && echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib' >> ~/.bashrc
 
@@ -179,31 +160,44 @@ RUN  cd ~/workspace/ros/src     \
     && cd iai_kinect2     \ 
     && git checkout 1607       
 
+####################################
+# OpenFace Dependencies
+# - OpenFace >= 0.2.1
+# - dlib >= 19.4
+# -torch7
+# -----------------------------------------
+# Removed due to installation error!
+# -----------------------------------------
+#   Cloning into 'dpnn'...
+# fatal: remote error: 
+#   The unauthenticated git protocol on port 9418 is no longer supported.
+# Please see https://github.blog/2021-09-01-improving-git-protocol-security-github/ for more information.
+#
+####################################
+#RUN  /bin/bash -c "git clone https://github.com/nagadomi/distro.git ~/torch --recursive \ 
+#    && cd ~/torch \ 
+#    && bash install-deps \ 
+#    && ./install.sh -b \ 
+#    && source ~/.bashrc \ 
+#    && cd install/bin \ 
+#    && ./luarocks install dpnn \ 
+#    && ./luarocks install csvigo"
 
-RUN  /bin/bash -c "git clone https://github.com/nagadomi/distro.git ~/torch --recursive \ 
-    && cd ~/torch \ 
-    && bash install-deps \ 
-    && ./install.sh -b \ 
-    && source ~/.bashrc \ 
-    && cd install/bin \ 
-    && ./luarocks install dpnn \ 
-    && ./luarocks install csvigo"
+#RUN /bin/bash -c "cd /tmp \
+#    && git clone https://github.com/cmusatyalab/openface.git \
+#    && cd openface \
+#    && sudo python setup.py install"
 
-RUN /bin/bash -c "cd /tmp \
-    && git clone https://github.com/cmusatyalab/openface.git \
-    && cd openface \
-    && sudo python setup.py install"
-
-RUN /bin/bash -c "cd /tmp \
-    && rm -rf dlib \
-    && git clone https://github.com/davisking/dlib.git \
-    && cd dlib \
-    && git checkout v19.4 \
-    && mkdir python_examples/build \
-    && cd python_examples/build \
-    && cmake ../../tools/python -DUSE_AVX_INSTRUCTIONS=ON \
-    && cmake --build . --config Release \
-    && sudo cp dlib.so /usr/local/lib/python2.7/dist-packages"
+#RUN /bin/bash -c "cd /tmp \
+#    && rm -rf dlib \
+#    && git clone https://github.com/davisking/dlib.git \
+#    && cd dlib \
+#    && git checkout v19.4 \
+#    && mkdir python_examples/build \
+#    && cd python_examples/build \
+#    && cmake ../../tools/python -DUSE_AVX_INSTRUCTIONS=ON \
+#    && cmake --build . --config Release \
+#    && sudo cp dlib.so /usr/local/lib/python2.7/dist-packages"
 
 RUN apt-get update \
     && apt-get install -y python-qt4 python-pip \
