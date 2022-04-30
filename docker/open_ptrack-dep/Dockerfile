@@ -1,6 +1,6 @@
 FROM nvidia/opengl:1.0-glvnd-runtime-ubuntu18.04
 
-LABEL maintainer "Samir Tabriz"
+LABEL maintainer "Matteo Terreran"
 
 ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES},display,compute,utility
 
@@ -91,6 +91,70 @@ RUN  apt-get install cmake libgoogle-glog-dev libatlas-base-dev libeigen3-dev li
 #    && sed -i -e 's/CUDNN_CROSS_CORRELATION/CUDNN_CROSS_CORRELATION, CUDNN_DATA_FLOAT/g' include/caffe/util/cudnn.hpp   \
 #    && apt-get --assume-yes install libprotobuf-dev libleveldb-dev libsnappy-dev libhdf5-serial-dev protobuf-compiler libboost-all-dev libgflags-dev libgoogle-glog-dev liblmdb-dev    \
 #    && make all -j8"
+
+# Upgrade CMake from 3.10.2 to 3.16.3 (needed for OpenPose)
+RUN cd /tmp  \
+    && wget http://www.cmake.org/files/v3.16/cmake-3.16.3.tar.gz  \
+    && tar xf cmake-3.16.3.tar.gz  \
+    && cd cmake-3.16.3  \
+    && apt-get install build-essential  \
+    && chmod -R 777 ../cmake-3.16.3  \
+    && ./bootstrap  \
+    && make  \
+    && make install  \
+    && echo "Updated CMake: $(cmake --version)"
+
+
+# OpenPose dependencies
+RUN  cd     \ 
+    && mkdir third_party  \
+    && cd third_party  \
+    && git clone https://github.com/CMU-Perceptual-Computing-Lab/openpose  \
+    && cd openpose  \
+    && git checkout v1.7.0  \
+    && git submodule update --init --recursive --remote  \
+    && cd models  \
+    && ./getModels.sh  \
+    && cd ..  \
+    && mkdir build  \
+    && cd scripts/ubuntu  \
+    && apt-get install libopencv-dev  \
+    && chmod +x install_deps.sh  \
+    && ./install_deps.sh  \
+    && cd ../../build  \
+    && apt-get install libgoogle-glog-dev  \
+    && cmake \
+        -DBUILD_CAFFE=ON \
+        -DBUILD_DOCS=OFF \                                     
+        -DBUILD_EXAMPLES=ON \                                       
+        -DBUILD_PYTHON=OFF \                                       
+        -DBUILD_SHARED_LIBS=ON \                                    
+        -DBUILD_UNITY_SUPPORT=OFF \
+        -DCMAKE_BUILD_TYPE=Release \                                
+        -DCMAKE_INSTALL_PREFIX=/usr/local \                                
+        -DCUDA_ARCH=Auto \                                      
+        -DCUDA_HOST_COMPILER=/usr/bin/cc \                               
+        -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda \                    
+        -DCUDA_USE_STATIC_CUDA_RUNTIME=ON  \ 
+        -DCUDA_rt_LIBRARY=/usr/lib/x86_64-linux-gnu/librt.so \
+        -DDL_FRAMEWORK=CAFFE \                                     
+        -DDOWNLOAD_BODY_25_MODEL=ON \                                        
+        -DDOWNLOAD_BODY_COCO_MODEL=ON \                                        
+        -DDOWNLOAD_BODY_MPI_MODEL=ON \                                        
+        -DDOWNLOAD_FACE_MODEL=ON \                                        
+        -DDOWNLOAD_HAND_MODEL=ON \                                        
+        -DGPU_MODE=CUDA \                                      
+        -DINSTRUCTION_SET=NONE \
+        -DPROFILER_ENABLED=OFF \                                       
+        -DUSE_CUDNN=OFF \                                         
+        -DWITH_3D_RENDERER=OFF \                                       
+        -DWITH_CERES=OFF \                                        
+        -DWITH_EIGEN=NONE \                                       
+        -DWITH_FLIR_CAMERA=OFF \
+        -DWITH_OPENCV_WITH_OPENGL=OFF  .. \
+    && make -j8 \
+    && make install  \
+    && echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib' >> ~/.bashrc
 
 RUN  cd     \ 
     && cd workspace     \ 

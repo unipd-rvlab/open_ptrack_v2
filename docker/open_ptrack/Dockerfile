@@ -1,5 +1,5 @@
 FROM openptrack/open_ptrack-dep:1804
-LABEL maintainer "Samir Tabriz"
+LABEL maintainer "Matteo Terreran"
 
 ARG branch=1804
 
@@ -31,10 +31,11 @@ RUN /bin/bash -c "source /opt/ros/melodic/setup.bash \
     && apt-get install ros-melodic-rgbd-launch"
 
 RUN /bin/bash -c "source /opt/ros/melodic/setup.bash \
-    && git clone https://github.com/openptrack/open_ptrack_v2 ~/workspace/ros/src/open_ptrack \
+    && git clone https://github.com/unipd-rvlab/open_ptrack_v2 ~/workspace/ros/src/open_ptrack \
     && cd ~/workspace/ros/src/open_ptrack \
     && git checkout $branch \
     && cd rtpose_wrapper     \  
+    && ln -s /third_party/openpose/models ~/workspace/ros/src/open_ptrack/openpose_wrapper/models  \
     && apt-get --assume-yes install libprotobuf-dev libleveldb-dev libsnappy-dev libhdf5-serial-dev protobuf-compiler libboost-all-dev libgflags-dev libgoogle-glog-dev liblmdb-dev    \
     && make all -j8"
 
