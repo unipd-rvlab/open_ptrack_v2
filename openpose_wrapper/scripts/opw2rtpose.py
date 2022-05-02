@@ -93,7 +93,6 @@ class SkeletonConverter():
             sk_rtpose_array.skeletons.append(sk_rtpose)
 
         # Publish
-        print(sk_rtpose_array)
         self.rtpose_skeleton_pub.publish(sk_rtpose_array)
 
 

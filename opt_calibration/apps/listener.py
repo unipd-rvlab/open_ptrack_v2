@@ -444,12 +444,17 @@ class Listener :
       file.write('  <arg name="width" default="640" />\n')
       file.write('  <arg name="height" default="480" />\n\n')
       file.write('  <arg name="fps" default="30" />\n\n')
+      # -- Parameter to select People detection algorithm
       file.write('  <!-- true  = Munaro Based OPT Detection -->\n')
       file.write('  <!-- false = YOLO Based Detection (Must Have YOLO installed to use)-->\n')
       if request.people_detector_type == OPTSensorRequest.PEOPLE_DETECTOR_YOLO_BASED:
         file.write('  <arg name="munaro_detection_enabled"         default="false" />\n\n')
       else:
         file.write('  <arg name="munaro_detection_enabled"         default="true" />\n\n')
+      # -- Parameter to select Pose estimation algorithm
+      file.write('  <!-- rtpose   = RTPose Pose estimator   -->\n')
+      file.write('  <!-- openpose = OpenPose Pose estimator -->\n')
+      file.write('  <arg name="pose_estimator"         default="rtpose" />\n\n')
       file.write('  <!-- Launch the sensor -->\n')
       file.write('   <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">\n')
       file.write('      <arg name="camera"         value="$(arg sensor_name)" />\n')
@@ -495,7 +500,7 @@ class Listener :
       file.write('    <include file="$(find detection)/launch/skeleton_detector_realsense.launch">\n')
       file.write('      <arg name="sensor_name"               value="$(arg sensor_name)" />\n')
       file.write('      <arg name="ground_from_calibration"   value="true" />\n')
-      file.write('      <arg name="rtpose_skeletons_enabled"  value="true" />\n')
+      file.write('      <arg name="rtpose_skeletons_enabled"  value="$(eval arg(\'pose_estimator\') == \'rtpose\')" />\n')
       
       file.write('    </include>\n\n')
       file.write('  </group>\n\n')
